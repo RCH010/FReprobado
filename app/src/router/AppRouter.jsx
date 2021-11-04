@@ -3,12 +3,14 @@ import { Route, Routes } from 'react-router-dom';
 
 import { Box } from '@chakra-ui/layout';
 
+import useAuth from '../hooks/useAuth';
+
+import { RequireAuth } from './RequireAuth';
 import { Login } from '../views/auth/Login';
 import { SingUp } from '../views/auth/SingUp';
-import { Loading } from '../views/auth/Loading';
-import { RequireAuth } from './RequireAuth';
 import { Dashboard } from '../views/Dashboard';
-import useAuth from '../hooks/useAuth';
+import { Loading } from '../views/auth/Loading';
+import { NotFound } from '../views/NotFound';
 
 
 export const AppRouter = () => {
@@ -33,6 +35,7 @@ export const AppRouter = () => {
                       </RequireAuth>
                     }
                   />
+                  <Route path='*' element={<NotFound />} />
                 </>
               )
             }

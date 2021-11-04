@@ -1,13 +1,14 @@
 import React from 'react'
+import { BaseContainer } from '../../components/BaseContainer'
 
 export const Login = () => {
   return (
-    <div>
+    <BaseContainer>
       <h1>this is login</h1>
       <h1>this is login</h1>
       <h1>this is login</h1>
       <h1>this is login</h1>
       <h1>this is login</h1>
-    </div>
+    </BaseContainer>
   )
 }
