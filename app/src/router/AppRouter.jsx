@@ -11,6 +11,7 @@ import { SingUp } from '../views/auth/SingUp';
 import { Dashboard } from '../views/Dashboard';
 import { Loading } from '../views/auth/Loading';
 import { NotFound } from '../views/NotFound';
+import routesPaths from './routes';
 
 
 export const AppRouter = () => {
@@ -25,13 +26,13 @@ export const AppRouter = () => {
                 <Loading />
               ) : (
                 <>
-                  <Route path='/' element={<Login />} />
-                  <Route path='/sing-up' element={<SingUp />} />  
+                  <Route path={routesPaths.LOGIN} element={<Login />} />
+                  <Route path={routesPaths.SIGNUP} element={<SingUp />} />  
                   <Route 
-                    path='/auth'
+                    path={routesPaths.AUTHBASE}
                     element={
                       <RequireAuth>
-                        <Route path='/' element={<Dashboard />} />
+                        <Route path={routesPaths.DASHBOARD} element={<Dashboard />} />
                       </RequireAuth>
                     }
                   />
