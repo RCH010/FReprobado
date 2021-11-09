@@ -11,7 +11,6 @@ import {
   Link as ChakraLink,
   Button,
   Heading,
-  useColorModeValue,
   // useToast,
   Divider,
   Text,
@@ -113,7 +112,7 @@ export const Login = () => {
             <ChakraLink 
               as={Link}
               to={routesPaths.SIGNUP}>
-                <Text color={useColorModeValue('primary.500', 'primary.300')}>
+                <Text>
                   Crear una nueva cuenta
                 </Text>
             </ChakraLink>
