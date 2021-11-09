@@ -4,7 +4,7 @@ import React, { useState, createContext } from 'react';
 const defaultContextValues = {
   authContext: {
     user: {},
-    isLoggedIn: false,
+    isLoggedIn: true, //TODO
     isLoading: false
   },
   login: () => {},
