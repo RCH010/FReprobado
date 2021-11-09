@@ -3,12 +3,15 @@ import { Route, Routes } from 'react-router-dom';
 
 import { Box } from '@chakra-ui/layout';
 
+import useAuth from '../hooks/useAuth';
+
+import { RequireAuth } from './RequireAuth';
 import { Login } from '../views/auth/Login';
 import { SingUp } from '../views/auth/SingUp';
-import { Loading } from '../views/auth/Loading';
-import { RequireAuth } from './RequireAuth';
 import { Dashboard } from '../views/Dashboard';
-import useAuth from '../hooks/useAuth';
+import { Loading } from '../views/auth/Loading';
+import { NotFound } from '../views/NotFound';
+import routesPaths from './routes';
 
 
 export const AppRouter = () => {
@@ -23,16 +26,17 @@ export const AppRouter = () => {
                 <Loading />
               ) : (
                 <>
-                  <Route path='/' element={<Login />} />
-                  <Route path='/sing-up' element={<SingUp />} />  
+                  <Route path={routesPaths.LOGIN} element={<Login />} />
+                  <Route path={routesPaths.SIGNUP} element={<SingUp />} />  
                   <Route 
-                    path='/auth'
+                    path={routesPaths.AUTHBASE}
                     element={
                       <RequireAuth>
-                        <Route path='/' element={<Dashboard />} />
+                        <Route path={routesPaths.DASHBOARD} element={<Dashboard />} />
                       </RequireAuth>
                     }
                   />
+                  <Route path='*' element={<NotFound />} />
                 </>
               )
             }
