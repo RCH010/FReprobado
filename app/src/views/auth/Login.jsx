@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useForm } from 'react-hook-form';
-// import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Link } from "react-router-dom";
 import { BaseContainer } from '../../components/BaseContainer';
 import routesPaths from '../../router/routes';
@@ -26,7 +26,7 @@ import routesPaths from '../../router/routes';
 
 export const Login = () => {
   // const { login } = useContext(AuthContext);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { register, formState: { errors }, handleSubmit } = useForm();
   // const toast = useToast();
   
@@ -47,6 +47,7 @@ export const Login = () => {
 
   const onSubmit = (values) => {
     console.log(values);
+    navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
     // TODO login request (onSuccess and onError)
   }
 
@@ -95,7 +96,7 @@ export const Login = () => {
                   required: 'Por favor ingresa tu contraseña',
                   minLength: {
                     value: 8,
-                    message: 'La contraseña debe ser mayor a 8 caracteres'
+                    message: 'Debe ser mayor a 8 caracteres'
                   }  
                 })}
               />
