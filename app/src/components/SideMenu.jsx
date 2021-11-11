@@ -1,19 +1,29 @@
-import { Flex, Button } from '@chakra-ui/react'
-import React from 'react'
+import React from 'react';
+import { Flex, useBreakpointValue } from '@chakra-ui/react';
+import { menuItems } from '../utils/menuItems';
+import MenuButton from './MenuButton';
 
 export const SideMenu = () => {
+  const displaySideMenu = useBreakpointValue({ base: false, md: true });
   return (
-    <Flex
-      flexDirection='column'
-      height='100%'
-      width='xs'
-    >
-      <Button>
-        Nueva Evaluación
-      </Button>
-      <Button>
-        Evaluaciones Pasadas
-      </Button>
-    </Flex>
-  )
-}
+    <>
+      {displaySideMenu && (
+        <Flex
+          bg='gray.700'
+          roundedTopRight='3xl'
+          flexDirection='column'
+          height='100%'
+          width='xs'
+          padding='1em'
+        >
+          {menuItems.map((menuItem) => (
+            <MenuButton
+              key={menuItem.key}
+              menuItem={menuItem}
+            />
+          ))}
+        </Flex>
+      )}
+    </>
+  );
+};

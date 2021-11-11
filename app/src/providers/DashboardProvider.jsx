@@ -1,5 +1,5 @@
 import React, { useState, createContext } from 'react';
-import { tabsOptions } from '../utils/utils';
+import { tabsOptions } from '../utils/menuItems';
 
 
 const defaultContextValues = {

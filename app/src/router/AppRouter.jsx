@@ -8,7 +8,7 @@ import useAuth from '../hooks/useAuth';
 import { RequireAuth } from './RequireAuth';
 import { Login } from '../views/auth/Login';
 import { SingUp } from '../views/auth/SingUp';
-import { Dashboard } from '../views/Dashboard';
+import { Dashboard } from '../views/Dashboard/Dashboard';
 import { Loading } from '../views/auth/Loading';
 import { NotFound } from '../views/NotFound';
 import routesPaths from './routes';
@@ -39,7 +39,7 @@ export const AppRouter = () => {
               <Route path={routesPaths.LOGIN} element={<Login />} />
               <Route path={routesPaths.SIGNUP} element={<SingUp />} />
               <Route
-                path={routesPaths.AUTHBASE}
+                path={`${routesPaths.AUTHBASE}/*`}
                 element={
                   <RequireAuth>
                     <DashboardProvider>
