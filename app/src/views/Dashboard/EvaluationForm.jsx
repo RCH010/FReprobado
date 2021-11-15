@@ -8,8 +8,7 @@ import {
   Stack,
   Button,
   Heading,
-  Select,
-  Flex
+  Select
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { BaseContainer } from '../../components/BaseContainer';
@@ -190,7 +189,7 @@ export const EvaluationForm = () => {
                 required={true}
                 {...register('currentSemester')}>
                 {currentSemesterOptions.map((el, i) => (
-                  <option id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>{el}</option>
                 ))}
               </Select>
             </FormControl>
@@ -204,7 +203,7 @@ export const EvaluationForm = () => {
                 required={true}
                 {...register('classDepartment')}>
                 {classDepartmentOptions.sort().map((el, i) => (
-                  <option id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>{el}</option>
                 ))}
               </Select>
             </FormControl>
@@ -218,7 +217,7 @@ export const EvaluationForm = () => {
                 required={true}
                 {...register('classPeriod')}>
                 {classPeriodOptions.map((el, i) => (
-                  <option id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>{el}</option>
                 ))}
               </Select>
             </FormControl>
