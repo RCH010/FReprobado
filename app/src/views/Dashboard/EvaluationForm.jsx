@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {
   Box,
   FormControl,
@@ -11,34 +11,98 @@ import {
   Select,
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink
+  BreadcrumbLink,
+  FormHelperText,
+  useToast,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { Link, useNavigate } from 'react-router-dom';
+import routesPaths from '../../router/routes';
+import { addEvaluation } from '../../firebase/firestore';
+import { AuthContext } from '../../providers/AuthProvider';
+
+const classDepartmentOptions = [
+  'EAAD',
+  'ECSG',
+  'EIC',
+  'EN',
+  'EMCS',
+  'Programa no clasificado',
+  'VI',
+  'EHE',
+];
+const currentSemesterOptions = [
+  'Primer Semestre',
+  'Segundo Semestre',
+  'Tercer Semestre',
+  'Cuarto Semestre',
+  'Quinto Semestre',
+  'Faltan Datos',
+  'Pendiente de Calcular',
+];
+const classPeriodOptions = ['1', '2', '3', '1-2', '1-3', '2-3', 'S/D'];
 
 export const EvaluationForm = () => {
-  const { register, formState: { errors }, handleSubmit } = useForm();
-  const classDepartmentOptions = [
-    'EAAD', 'ECSG', 'EIC', 'EN', 'EMCS',
-    'Programa no clasificado', 'VI', 'EHE'
-  ]
-  const currentSemesterOptions = [
-    'Primer Semestre', 'Segundo Semestre', 'Tercer Semestre', 
-    'Cuarto Semestre', 'Quinto Semestre', 'Faltan Datos',
-    'Pendiente de Calcular'
-  ]
-  const classPeriodOptions =[
-    '1', '2', '3', '1-2', '1-3', '2-3', 'S/D'
-  ]
+  const [isSubmitLoadint, setIsSubmitLoadint] = useState(false);
+  const toast = useToast();
+  const nvaigate = useNavigate()
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+  } = useForm();
+  const { authContext } = useContext(AuthContext)
+  
+  const onSuccess = () => {
+    reset();
+    toast({
+      title: 'Perfecto!',
+      description: 'La evaluación se creo con éxito',
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+      position: 'bottom',
+    });
+    nvaigate(routesPaths.AUTHBASE + routesPaths.DASHBOARD + routesPaths.EVALUATIONS);
+    setIsSubmitLoadint(false);
+  }
+  
+  const onError = (message) => {
+    toast({
+      title: 'Ups!',
+      description: message,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+      position: 'bottom',
+    });
+    setIsSubmitLoadint(false);
+  }
 
   const onSubmit = (values) => {
     console.log(values);
-  }
+    setIsSubmitLoadint(true);
+    const userId = authContext.user.userId;
+    addEvaluation(userId, values).then(() => {
+      onSuccess()
+    })
+    .catch(err => {
+      console.log(err);
+      onError('Tuvimos un problema al crear esta nueva evaliación, por favor intentalo más tarde')
+    })
+  };
 
   return (
     <>
       <Breadcrumb spacing="1em" mb="1rem">
         <BreadcrumbItem>
-          <BreadcrumbLink>Inicio</BreadcrumbLink>
+          <BreadcrumbLink
+            to={routesPaths.AUTHBASE + routesPaths.DASHBOARD}
+            as={Link}
+          >
+            Inicio
+          </BreadcrumbLink>
         </BreadcrumbItem>
 
         <BreadcrumbItem isCurrentPage>
@@ -50,45 +114,60 @@ export const EvaluationForm = () => {
         spacing={8}
         mx={'auto'}
         maxW={'xl'}
-        py={12} px={6}>
+        py={12}
+        px={6}
+      >
         <Heading fontSize={'4xl'}>Evaluación</Heading>
-        <Box
-          p={8}
-          minW='sm'
-          rounded={'lg'}
-        >
+        <Box p={8} minW="sm" rounded={'lg'}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.paa)}>
+            <FormControl mb="4" isInvalid={Boolean(errors.paa)}>
               <FormLabel htmlFor="paa">Puntaje PAA</FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="paa"
                 type="number"
                 {...register('paa', {
-                  required: 'Por favor ingresa el resultado de la Prueba de Aptitud Académica',
-                  min: 520,
-                  max: 1600
+                  required:
+                    'Por favor ingresa el resultado de la Prueba de Aptitud Académica',
+                  min: {
+                    value: 520,
+                    message: 'El puntaje debe estar entre 520 y 1600',
+                  },
+                  max: {
+                    value: 1600,
+                    message: 'El puntaje debe estar entre 520 y 1600',
+                  },
                 })}
               />
               <FormErrorMessage>
                 {errors.paa && errors.paa.message}
               </FormErrorMessage>
+              <FormHelperText>
+                Prueba de Aptitudes Academicas (PAA)
+              </FormHelperText>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.lastSemesterGrade)}>
-              <FormLabel htmlFor="lastSemesterGrade">Promedio del semestre anterior</FormLabel>
+            <FormControl mb="4" isInvalid={Boolean(errors.lastSemesterGrade)}>
+              <FormLabel htmlFor="lastSemesterGrade">
+                Promedio del semestre anterior
+              </FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="lastSemesterGrade"
                 type="number"
                 {...register('lastSemesterGrade', {
-                  required: 'Por favor ingresa el promedio del semestre anterior',
-                  min: 0.0,
-                  max: 100.0
+                  required:
+                    'Por favor ingresa el promedio del semestre anterior',
+                  min: {
+                    value: 0,
+                    message: 'El promedio debe estar entre 0 y 100',
+                  },
+                  max: {
+                    value: 100,
+                    message: 'El promedio debe estar entre 0 y 100',
+                  },
                 })}
               />
               <FormErrorMessage>
@@ -96,75 +175,112 @@ export const EvaluationForm = () => {
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.accumulatedGrade)}>
-              <FormLabel htmlFor="accumulatedGrade">Promedio acumulado</FormLabel>
+            <FormControl mb="4" isInvalid={Boolean(errors.accumulatedGrade)}>
+              <FormLabel htmlFor="accumulatedGrade">
+                Promedio acumulado
+              </FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="accumulatedGrade"
                 type="number"
                 {...register('accumulatedGrade', {
                   required: 'Por favor ingresa el promedio acumulado',
-                  min: 0.0,
-                  max: 100.0
+                  min: {
+                    value: 0,
+                    message: 'El promedio acumulado debe estar entre 0 y 100',
+                  },
+                  max: {
+                    value: 100,
+                    message: 'El promedio acumulado debe estar entre 0 y 100',
+                  },
                 })}
               />
               <FormErrorMessage>
                 {errors.accumulatedGrade && errors.accumulatedGrade.message}
               </FormErrorMessage>
+              <FormHelperText>
+                El promedio que se tiene de toda la carrera
+              </FormHelperText>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.enrrolledUnits)}>
+            <FormControl mb="4" isInvalid={Boolean(errors.enrrolledUnits)}>
               <FormLabel htmlFor="enrrolledUnits">Unidades Inscritas</FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="enrrolledUnits"
                 type="number"
                 {...register('enrrolledUnits', {
-                  required: 'Por favor ingresa las unidades inscritas en este semestre',
-                  min: 0.0,
-                  max: 100.0
+                  required:
+                    'Por favor ingresa las unidades inscritas en este semestre',
+                  min: {
+                    value: 0,
+                    message: 'El número de unidades debe ser entre 0 y 100',
+                  },
+                  max: {
+                    value: 100,
+                    message: 'El número de unidades debe ser entre 0 y 100',
+                  },
                 })}
               />
               <FormErrorMessage>
                 {errors.enrrolledUnits && errors.enrrolledUnits.message}
               </FormErrorMessage>
+              <FormHelperText>
+                Cada materia tiene un número de unidades, por lo que aqui va la
+                suma de las unidades de todas las materias que se esten
+                cursando.
+              </FormHelperText>
             </FormControl>
-            
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.classUnits)}>
+
+            <FormControl mb="4" isInvalid={Boolean(errors.classUnits)}>
               <FormLabel htmlFor="classUnits">Unidades de la materia</FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="classUnits"
                 type="number"
                 {...register('classUnits', {
-                  required: 'Por favor ingresa las unidades que representa la materia',
-                  min: 4,
-                  max: 12
+                  required:
+                    'Por favor ingresa las unidades que representa la materia',
+                  min: {
+                    value: 4,
+                    message:
+                      'El número de unidades para una materia debe ser entre 4 y 12',
+                  },
+                  max: {
+                    value: 12,
+                    message:
+                      'El número de unidades para una materia debe ser entre 4 y 12',
+                  },
                 })}
               />
               <FormErrorMessage>
                 {errors.classUnits && errors.classUnits.message}
               </FormErrorMessage>
+              <FormHelperText>
+                Las unidades de la materia a evaluar
+              </FormHelperText>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.classHours)}>
+            <FormControl mb="4" isInvalid={Boolean(errors.classHours)}>
               <FormLabel htmlFor="classHours">Horas de clase</FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="classHours"
                 type="number"
                 {...register('classHours', {
                   required: 'Por favor ingresa las horas de clase',
-                  min: 1.5,
-                  max: 6
+                  min: {
+                    value: 1.5,
+                    message: 'Las horas de una clase deben estar entre 1.5 y 6',
+                  },
+                  max: {
+                    value: 6,
+                    message: 'Las horas de una clase deben estar entre 1.5 y 6',
+                  },
                 })}
               />
               <FormErrorMessage>
@@ -172,18 +288,23 @@ export const EvaluationForm = () => {
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.labHours)}>
+            <FormControl mb="4" isInvalid={Boolean(errors.labHours)}>
               <FormLabel htmlFor="labHours">Horas de laboratorio</FormLabel>
               <Input
+                isRequired
                 onWheel={(e) => e.target.blur()}
                 name="labHours"
                 type="number"
                 {...register('labHours', {
                   required: 'Por favor ingresa las horas de laboratorio',
-                  min: 0,
-                  max: 6
+                  min: {
+                    value: 0,
+                    message: 'Las horas de laboratorio deben estar entre 0 y 6',
+                  },
+                  max: {
+                    value: 6,
+                    message: 'Las horas de laboratorio deben estar entre 0 y 6',
+                  },
                 })}
               />
               <FormErrorMessage>
@@ -191,55 +312,64 @@ export const EvaluationForm = () => {
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.currentSemester)}>
-              <FormLabel htmlFor="currentSemester">Semestre del alumno</FormLabel>
+            <FormControl mb="4" isInvalid={Boolean(errors.currentSemester)}>
+              <FormLabel htmlFor="currentSemester">
+                Semestre del alumno
+              </FormLabel>
               <Select
+                isRequired
                 placeholder="Select option"
                 required={true}
-                {...register('currentSemester')}>
+                {...register('currentSemester')}
+              >
                 {currentSemesterOptions.map((el, i) => (
-                  <option key={i} id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>
+                    {el}
+                  </option>
                 ))}
               </Select>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.classDepartment)}>
-              <FormLabel htmlFor="classDepartment">Escuela de la materia</FormLabel>
+            <FormControl mb="4" isInvalid={Boolean(errors.classDepartment)}>
+              <FormLabel htmlFor="classDepartment">
+                Escuela de la materia
+              </FormLabel>
               <Select
+                isRequired
                 placeholder="Select option"
                 required={true}
-                {...register('classDepartment')}>
+                {...register('classDepartment')}
+              >
                 {classDepartmentOptions.sort().map((el, i) => (
-                  <option key={i} id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>
+                    {el}
+                  </option>
                 ))}
               </Select>
             </FormControl>
 
-            <FormControl
-              mb='4'
-              isInvalid={Boolean(errors.classPeriod)}>
+            <FormControl mb="4" isInvalid={Boolean(errors.classPeriod)}>
               <FormLabel htmlFor="classPeriod">Periodo de la materia</FormLabel>
               <Select
+                isRequired
                 placeholder="Select option"
                 required={true}
-                {...register('classPeriod')}>
+                {...register('classPeriod')}
+              >
                 {classPeriodOptions.map((el, i) => (
-                  <option key={i} id={i} value={el}>{el}</option>
+                  <option key={i} id={i} value={el}>
+                    {el}
+                  </option>
                 ))}
               </Select>
             </FormControl>
 
-            <Stack spacing={8}>
-              <Button type="submit">Evaluar</Button>
+            <Stack my={12} spacing={8}>
+              <Button isLoading={isSubmitLoadint} loadingText='Creando Evaluación' type="submit">Evaluar</Button>
             </Stack>
           </form>
         </Box>
       </Stack>
     </>
-  )
-}
-
+  );
+};

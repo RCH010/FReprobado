@@ -3,9 +3,10 @@ import { tabsOptions } from '../utils/menuItems';
 
 
 const defaultContextValues = {
-  currentTab: tabsOptions.NEWEVALUATION,
-  setCurrentTab: () => {},
-
+  currentUser: tabsOptions.NEWEVALUATION,
+  setCurrentUser: () => {},
+  isLoadingCurrentUsers: true,
+  setIsLoadingCurrentUsers: () => {},
   evaluations: [],
   setEvaluations: () => {},
 
@@ -21,24 +22,23 @@ export const DashboardContext = createContext(defaultContextValues);
 
 // Provider
 export const DashboardProvider = ({ children }) => {
-  const [currentTab, setCurrentTab] = useState(tabsOptions.NEWEVALUATION);
   const [evaluations, setEvaluations] = useState([]);
   const [isLoadingEvaluations, setIsLoadingEvaluations] = useState(true);
-  const [selectedEvaluation, setSelectedEvaluation] = useState(null);
+  const [isLoadingCurrentUsers, setIsLoadingCurrentUsers] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
 
   return (
     <DashboardContext.Provider value={{ 
-      currentTab,
-      setCurrentTab,
-
       evaluations,
       setEvaluations,
 
       isLoadingEvaluations,
       setIsLoadingEvaluations,
 
-      selectedEvaluation,
-      setSelectedEvaluation,
+      currentUser,
+      setCurrentUser,
+      isLoadingCurrentUsers,
+      setIsLoadingCurrentUsers,
     }}>
       {children}
     </DashboardContext.Provider>
