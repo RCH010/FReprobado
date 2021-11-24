@@ -1,5 +1,5 @@
 import React, { 
-  // useContext 
+  useContext, useState 
 } from 'react';
 import {
   Box,
@@ -11,7 +11,7 @@ import {
   Link as ChakraLink,
   Button,
   Heading,
-  // useToast,
+  useToast,
   Divider,
   Text,
 } from '@chakra-ui/react';
@@ -21,34 +21,49 @@ import { useNavigate } from 'react-router';
 import { Link } from "react-router-dom";
 import { BaseContainer } from '../../components/BaseContainer';
 import routesPaths from '../../router/routes';
-// import { AuthContext } from '../../providers/AuthProvider';
+import { AuthContext } from '../../providers/AuthProvider';
+import { errorMessages } from '../../utils/utils';
 
 
 export const Login = () => {
-  // const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const navigate = useNavigate();
   const { register, formState: { errors }, handleSubmit } = useForm();
-  // const toast = useToast();
+  const toast = useToast();
   
-  // const onSuccess = () => {
-  //   navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
-  // }
+  const onSuccess = () => {
+    navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
+  }
   
-  // const onError = (data) => {
-  //   toast({
-  //     title: 'Ups!',
-  //     description: data.message,
-  //     status: 'error',
-  //     duration: 5000,
-  //     isClosable: true,
-  //     position: 'bottom',
-  //   });
-  // }
+  const onError = (message) => {
+    toast({
+      title: 'Ups!',
+      description: message,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+      position: 'bottom',
+    });
+  }
 
   const onSubmit = (values) => {
     console.log(values);
-    navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
-    // TODO login request (onSuccess and onError)
+    setIsSubmitLoading(true);
+    login(values.email, values.password)
+    .then(() => {
+      setIsSubmitLoading(false);
+      onSuccess();
+    })
+    .catch((err) => {
+      const errorCode = err.code;
+      let errorMessage = errorMessages[errorCode];
+      if (!errorMessage) {
+        errorMessage = 'Oh no, hubo un problema, por favor intentalo más tarde'
+      }
+      onError(errorMessage)
+      setIsSubmitLoading(false);
+    })
   }
 
   return (
@@ -105,7 +120,7 @@ export const Login = () => {
               </FormErrorMessage>
             </FormControl>
             <Stack spacing={8}>
-              <Button type="submit">Entrar</Button>
+              <Button isLoading={isSubmitLoading} loadingText='Entrando' type="submit">Entrar</Button>
             </Stack>
           </form>
           <Divider my={4}/>

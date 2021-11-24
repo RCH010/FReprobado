@@ -1,5 +1,5 @@
 import React, { 
-  // useContext 
+  useContext, useState
 } from 'react';
 import {
   Box,
@@ -11,44 +11,62 @@ import {
   Link as ChakraLink,
   Button,
   Heading,
-  // useToast,
+  useToast,
   Divider,
   Text,
 } from '@chakra-ui/react';
 
 import { useForm } from 'react-hook-form';
-// import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Link } from "react-router-dom";
 import { BaseContainer } from '../../components/BaseContainer';
 import routesPaths from '../../router/routes';
-// import { AuthContext } from '../../providers/AuthProvider';
+import { AuthContext } from '../../providers/AuthProvider';
+import { errorMessages } from '../../utils/utils';
 
 
 export const SingUp = () => {
-  // const { login } = useContext(AuthContext);
-  // const navigate = useNavigate();
+  const { signup } = useContext(AuthContext);
+  const [isSubmitLoading, setIsSubmitLoading] = useState(false);
+  const navigate = useNavigate();
   const { register, formState: { errors }, handleSubmit, watch } = useForm();
   const firstPassword = watch('password');
-  // const toast = useToast();
+  const toast = useToast();
   
-  // const onSuccess = () => {
-  //   navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
-  // }
+  const onSuccess = () => {
+    navigate(`${routesPaths.AUTHBASE + routesPaths.DASHBOARD}`)
+  }
   
-  // const onError = (data) => {
-  //   toast({
-  //     title: 'Ups!',
-  //     description: data.message,
-  //     status: 'error',
-  //     duration: 5000,
-  //     isClosable: true,
-  //     position: 'bottom',
-  //   });
-  // }
+  const onError = (message) => {
+    toast({
+      title: 'Ups!',
+      description: message,
+      status: 'error',
+      duration: 5000,
+      isClosable: true,
+      position: 'bottom',
+    });
+  }
 
   const onSubmit = (values) => {
     console.log(values);
-    // TODO sing up request (onSuccess and onError)
+    setIsSubmitLoading(true);
+    signup(values.email, values.password, values.name)
+      .then(() => {
+        onSuccess();
+        setIsSubmitLoading(false);
+      })
+      .catch((err) => {
+        const errorCode = err.code;
+        let errorMessage = errorMessages[errorCode];
+        if (!errorMessage) {
+          errorMessage =
+            'Oh no, hubo un problema, por favor intentalo más tarde';
+        }
+        onError(errorMessage)
+        setIsSubmitLoading(false);
+      });
+    
   }
 
   return (
@@ -146,7 +164,10 @@ export const SingUp = () => {
               </FormErrorMessage>
             </FormControl>
             <Stack spacing={8}>
-              <Button type="submit">Entrar</Button>
+              <Button 
+                isLoading={isSubmitLoading}
+                loadingText='Creando'
+                type="submit">Crear cuenta</Button>
             </Stack>
           </form>
           <Divider my={4}/>
