@@ -24,3 +24,13 @@ export const getCurrentUserData = async (userId) => {
   const docData = doc.data();
   return docData;
 };
+
+export const addEvaluation = (userId, data) => {
+  const newDocument = {
+    status: 'created',
+    data,
+    userId,
+  }
+  console.log('Nueva Evaluación',newDocument);
+  return APIService.db().collection('evaluations').add(newDocument)
+}
