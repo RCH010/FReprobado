@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-computed-key */
+import { serverTimestamp } from '@firebase/firestore';
 import { APIService } from './firebase';
 
 export const updateProfile = (
@@ -15,7 +17,19 @@ export const updateDbProfile = async (userCredential, name) => {
   const userDocument = await userDocumentRef.get();
   if (userDocument.exists) return userCredential;
   console.log('User does not exists, creating document');
-  await userDocumentRef.set(name ? { name, email } : { email });
+  let dataToUpdate = {
+    email,
+    totals: {
+      approved: 0,
+      failed: 0,
+      featuresAvg: {
+        acumulatedGrade: 0,
+        lastSemesterGrade: 0,
+      },
+    },
+  };
+  if (name) dataToUpdate = { ...dataToUpdate, name };
+  await userDocumentRef.set(dataToUpdate);
   console.log('Document created successfully');
 };
 
@@ -30,7 +44,12 @@ export const addEvaluation = (userId, data) => {
     status: 'created',
     data,
     userId,
-  }
-  console.log('Nueva Evaluación',newDocument);
-  return APIService.db().collection('evaluations').add(newDocument)
+    createdAt: serverTimestamp(),
+  };
+  console.log('Nueva Evaluación', newDocument);
+  return APIService.db().collection('evaluations').add(newDocument);
+};
+
+export const getCurrentUserDoc = (userId) => {
+  return  APIService.db().collection(`users/${userId}`).get();
 }

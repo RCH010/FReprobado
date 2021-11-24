@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Doughnut, Bar } from '@iftek/react-chartjs-3';
 import {
   Button,
@@ -21,11 +21,24 @@ import { AddIcon } from '@chakra-ui/icons';
 import { allowedColors } from '../../utils/utils';
 import { Link } from 'react-router-dom';
 import routesPaths from '../../router/routes';
+import { DashboardContext } from '../../providers/DashboardProvider';
+
+const doughnutLabels = {
+  acumulatedGrade: 'Promedio C. acumuladas',
+  lastSemesterGrade: 'Promedio C. último semestre',
+}
 
 export const Analytics = () => {
   const containerDirection = useBreakpointValue({ base: 'column', md: 'row' });
   const doughnutWidth = useBreakpointValue({ base: '90%', md: '40%' });
   const barsWidth = useBreakpointValue({ base: '90%', md: '60%' });
+  const { currentUser, evaluations } = useContext(DashboardContext)
+  let totals = null
+  if (currentUser) {
+    totals = currentUser.totals;
+  }
+  
+
   const [approved, setApproved] = useState(0);
   const [failed, setFailed] = useState(0);
   const [features, setFeatures] = useState({
@@ -39,33 +52,31 @@ export const Analytics = () => {
     data: [],
   });
 
-  const fetchGraphsInfo = () => {
-    const url = 'https://run.mocky.io/v3/95189440-f602-4703-83e2-335039ca4e12';
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        const featuresLabels = [];
-        const featuresValues = [];
-        const featuresColors = [];
-        const featuresBorder = [];
-        for (const key in data['featuresAvg']) {
-          featuresLabels.push(key);
-          featuresValues.push(data['featuresAvg'][key]);
-        }
-        for (let i = 0; i < Object.keys(data['featuresAvg']).length; i++) {
-          const [color, border] = allowedColors[i];
-          featuresColors.push(color);
-          featuresBorder.push(border);
-        }
-        setApproved(data['approved']);
-        setFailed(data['failed']);
-        setFeatures({
-          featuresLabels,
-          featuresValues,
-          featuresColors,
-          featuresBorder,
-        });
+  const UpdateGraphsInfo = () => {
+    const featuresLabels = [];
+    const featuresValues = [];
+    const featuresColors = [];
+    const featuresBorder = [];
+    const data = totals;
+    if (data) {
+      for (const key in data['featuresAvg']) {
+        featuresLabels.push(doughnutLabels[key]);
+        featuresValues.push(data['featuresAvg'][key]);
+      }
+      for (let i = 0; i < Object.keys(data['featuresAvg']).length; i++) {
+        const [color, border] = allowedColors[i];
+        featuresColors.push(color);
+        featuresBorder.push(border);
+      }
+      setApproved(data['approved']);
+      setFailed(data['failed']);
+      setFeatures({
+        featuresLabels,
+        featuresValues,
+        featuresColors,
+        featuresBorder,
       });
+    }
   };
 
   const fetchTableInfo = () => {
@@ -78,7 +89,11 @@ export const Analytics = () => {
   };
 
   useEffect(() => {
-    fetchGraphsInfo();
+    UpdateGraphsInfo();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
+
+  useEffect(() => {
     fetchTableInfo();
   }, []);
 
@@ -168,7 +183,6 @@ export const Analytics = () => {
           </Thead>
           <Tbody>
             {tableData.data.map((el) => {
-              console.log(el);
               return (
                 <Tr>
                   {el.map((e) => (
