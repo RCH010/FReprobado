@@ -20,12 +20,7 @@ exports.runModel = functions.firestore
         const docRef = admin.firestore().doc('evaluations/' + context.params.docId)
         await docRef.update({status: 'processing'})
         let model;
-        model = await tf.loadLayersModel(
-            'https://firebasestorage.googleapis.com/v0/b/freprobado-dev.appspot.com/o/model.json?alt=media&token=97ac7774-3000-49af-bc67-2db909c7fabb',
-            {
-                weightPathPrefix: 'https://firebasestorage.googleapis.com/v0/b/freprobado-dev.appspot.com/o/'
-            }
-        )
+        model = await tf.loadLayersModel('https://raw.githubusercontent.com/RCH010/FReprobado/develop/app/src/model/model.json')
         const {
             accumulatedGrade,
             classDepartment,
@@ -58,10 +53,9 @@ exports.runModel = functions.firestore
             paa
         }
 
-        const evalToProcess = Array(37).fill(0)
+        const evalToProcess = Array(36).fill(0)
         for (let value in dataValues) {
-            const index = columns.findIndex((value1 => value1 == value))
-            console.log(value, index, columns[2])
+            const index = columns.findIndex((value1 => value1 === value))
             if (index === -1) {
                 evalToProcess[index] = dataValues[value]
             } else {
@@ -77,23 +71,33 @@ exports.runModel = functions.firestore
                         break
                     default:
                         await docRef.update({status: 'error', errorMessage: 'column ' + value + ' not found'})
-                        console.log('CRITICAL ERROR: COLUMN NOT FOUND')
+                        console.log('CRITICAL ERROR: COLUMN ' + value + ' NOT FOUND')
+                        break
                 }
             }
         }
-        const result = model.predict(evalToProcess)
-        await docRef.update({status: 'success', data: {prediction: result[0]}})
-        const userSnapshot = await admin.firestore().doc('users/' + snapshot.data().userId).get()
-        const user = userSnapshot.data()
 
-        const total = (user.approved ?? 0) + (user.failed ?? 0)
-        const x = (user.featuresAvg ? (user.featuresAvg.accumulatedGrade ?? 0) : 0)
-        const newAccumGrade = (x + accumulatedGrade) / (total + 1)
-        await userSnapshot.ref.update({
-            approved: result[0] >= 70 ? user.approved + 1 : user.approved,
-            failed: result[0] < 70 ? user.failed + 1 : user.failed,
-            featuresAvg: {
-                newAccumGrade,
-            }
-        })
+        try {
+            const result = await model.predict([tf.tensor([evalToProcess])]).data()
+            console.log('result', await result)
+            await docRef.update({status: 'success', result: {prediction: result[0]}, error: '', errorMessage: ''})
+            const userSnapshot = await admin.firestore().doc('users/' + snapshot.data().userId).get()
+            const user = userSnapshot.data()
+            const total = (user.totals.approved ?? 0) + (user.totals.failed ?? 0)
+            const x = (user.totals.featuresAvg ? (user.totals.featuresAvg.accumulatedGrade ?? 0) : 0)
+            const newAccumGrade = (x + accumulatedGrade) / (total + 1)
+            await userSnapshot.ref.update({
+                totals: {
+                    approved: result[0] >= 70 ? user.totals.approved + 1 : user.totals.approved,
+                    failed: result[0] < 70 ? user.totals.failed + 1 : user.totals.failed,
+                    featuresAvg: {
+                        newAccumGrade,
+                    }
+                }
+            })
+        } catch (e) {
+            console.log(e)
+            await docRef.update({error: 'unknown error'})
+        }
+
     }))
