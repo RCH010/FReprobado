@@ -8,13 +8,15 @@ import {
   Stack,
   Button,
   Heading,
-  Select
+  Select,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { BaseContainer } from '../../components/BaseContainer';
 
 export const EvaluationForm = () => {
-  const { register, formState: { errors }, handleSubmit, _ } = useForm();
+  const { register, formState: { errors }, handleSubmit } = useForm();
   const classDepartmentOptions = [
     'EAAD', 'ECSG', 'EIC', 'EN', 'EMCS',
     'Programa no clasificado', 'VI', 'EHE'
@@ -33,7 +35,16 @@ export const EvaluationForm = () => {
   }
 
   return (
-    <BaseContainer>
+    <>
+      <Breadcrumb spacing="1em" mb="1rem">
+        <BreadcrumbItem>
+          <BreadcrumbLink>Inicio</BreadcrumbLink>
+        </BreadcrumbItem>
+
+        <BreadcrumbItem isCurrentPage>
+          <BreadcrumbLink>Nueva evaluación</BreadcrumbLink>
+        </BreadcrumbItem>
+      </Breadcrumb>
       <Stack
         align={'center'}
         spacing={8}
@@ -228,7 +239,7 @@ export const EvaluationForm = () => {
           </form>
         </Box>
       </Stack>
-    </BaseContainer>
+    </>
   )
 }
 

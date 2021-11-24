@@ -13,6 +13,9 @@ import { DashboardProvider } from '../providers/DashboardProvider';
 
 import useAuth from '../hooks/useAuth';
 import routesPaths from './routes';
+import { Analytics } from '../views/Dashboard/Analytics';
+import { EvaluationForm } from '../views/Dashboard/EvaluationForm';
+import { Evaluations } from '../views/Dashboard/Evaluations';
 
 export const AppRouter = () => {
   const { authContext } = useAuth();
@@ -61,10 +64,11 @@ export const AppRouter = () => {
                       <RequireAuth>
                         <DashboardProvider>
                           <Routes>
-                            <Route
-                              path={routesPaths.DASHBOARD}
-                              element={<Dashboard />}
-                            />
+                            <Route path={routesPaths.DASHBOARD} element={<Dashboard />}>
+                              <Route index element={<Analytics />} />
+                              <Route path={routesPaths.NEWEVALUTATION} element={<EvaluationForm />} />
+                              <Routes path={routesPaths.EVALUATIONS} element={<Evaluations />} />
+                            </Route>
                           </Routes>
                         </DashboardProvider>
                       </RequireAuth>

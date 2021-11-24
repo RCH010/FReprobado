@@ -1,8 +1,7 @@
 import React from 'react';
 import { Flex, Box } from '@chakra-ui/react';
 import { Banner } from '../../components/Banner';
-import { SideMenu } from '../../components/SideMenu';
-import { DashboardSections } from './DashboardSections';
+import { Outlet } from 'react-router';
 
 export const Dashboard = () => {
   return (
@@ -18,13 +17,12 @@ export const Dashboard = () => {
         height='100%'
         width='100%'
       >
-        <SideMenu />
         <Box
           height='100%'
           width='100%'
           padding='1em'
         >
-          <DashboardSections />
+          <Outlet />
         </Box>
       </Flex>
     </Flex>
