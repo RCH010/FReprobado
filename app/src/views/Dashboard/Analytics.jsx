@@ -184,6 +184,9 @@ export const Analytics = () => {
                   >
                     <Td>{new Date(evaluation.createdAt?.seconds || 0 * 1000).toLocaleDateString("es-MX")}</Td>
                     <Td>{evaluation.status}</Td>
+                    <Td>
+                      {evaluation.result?.prediction.toFixed(2) || '-'}
+                    </Td>
                     <Td>{evaluation.data.enrrolledUnits}</Td>
                     <Td>{evaluation.data.classUnits}</Td>
                     <Td>{evaluation.data.currentSemester}</Td> 

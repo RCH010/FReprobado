@@ -114,6 +114,12 @@ export const Evaluation = () => {
                     <Th>Status:</Th>
                     <Td>{currentEvaluation.status}</Td>
                   </Tr>
+                  {currentEvaluation.result?.prediction &&
+                    <Tr>
+                      <Th>Calificación estimada:</Th>
+                      <Td>{currentEvaluation.result.prediction.toFixed(4)}</Td>
+                    </Tr>
+                  }
                   <Tr>
                     <Th>Puntaje PAA:</Th>
                     <Td>{currentEvaluation.data.paa}</Td>

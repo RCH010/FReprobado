@@ -19,6 +19,7 @@ export const errorMessages = {
 export const evaluationsColumns = [
   'Fecha',
   'Status',
+  'C. Estimada',
   'Unidades Inscritas',
   'Unidades de la materia',
   'Semestre',
