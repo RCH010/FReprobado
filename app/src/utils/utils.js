@@ -15,3 +15,11 @@ export const errorMessages = {
   'auth/email-already-exists': "¡Oh no! Ya hay alguien registrado con este correo.",
   'auth/email-already-in-use': "¡Oh no! Ya hay alguien registrado con este correo.",
 }
+
+export const evaluationsColumns = [
+  'Fecha',
+  'Status',
+  'Unidades Inscritas',
+  'Unidades de la materia',
+  'Semestre',
+]

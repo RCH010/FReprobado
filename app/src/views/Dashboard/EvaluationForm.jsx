@@ -1,10 +1,9 @@
-import React, {useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Box,
   FormControl,
   FormLabel,
   FormErrorMessage,
-  Input,
   Stack,
   Button,
   Heading,
@@ -14,6 +13,12 @@ import {
   BreadcrumbLink,
   FormHelperText,
   useToast,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
+  theme,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
@@ -45,15 +50,15 @@ const classPeriodOptions = ['1', '2', '3', '1-2', '1-3', '2-3', 'S/D'];
 export const EvaluationForm = () => {
   const [isSubmitLoadint, setIsSubmitLoadint] = useState(false);
   const toast = useToast();
-  const nvaigate = useNavigate()
+  const nvaigate = useNavigate();
   const {
     register,
     formState: { errors },
     handleSubmit,
     reset,
   } = useForm();
-  const { authContext } = useContext(AuthContext)
-  
+  const { authContext } = useContext(AuthContext);
+
   const onSuccess = () => {
     reset();
     toast({
@@ -64,10 +69,12 @@ export const EvaluationForm = () => {
       isClosable: true,
       position: 'bottom',
     });
-    nvaigate(routesPaths.AUTHBASE + routesPaths.DASHBOARD + routesPaths.EVALUATIONS);
+    nvaigate(
+      routesPaths.AUTHBASE + routesPaths.DASHBOARD
+    );
     setIsSubmitLoadint(false);
-  }
-  
+  };
+
   const onError = (message) => {
     toast({
       title: 'Ups!',
@@ -78,23 +85,26 @@ export const EvaluationForm = () => {
       position: 'bottom',
     });
     setIsSubmitLoadint(false);
-  }
+  };
 
   const onSubmit = (values) => {
     console.log(values);
     setIsSubmitLoadint(true);
     const userId = authContext.user.userId;
-    addEvaluation(userId, values).then(() => {
-      onSuccess()
-    })
-    .catch(err => {
-      console.log(err);
-      onError('Tuvimos un problema al crear esta nueva evaliación, por favor intentalo más tarde')
-    })
+    addEvaluation(userId, values)
+      .then(() => {
+        onSuccess();
+      })
+      .catch((err) => {
+        console.log(err);
+        onError(
+          'Tuvimos un problema al crear esta nueva evaliación, por favor intentalo más tarde'
+        );
+      });
   };
 
   return (
-    <>
+    <Box  maxW={theme.breakpoints['xl']} w="100%">
       <Breadcrumb spacing="1em" mb="1rem">
         <BreadcrumbItem>
           <BreadcrumbLink
@@ -122,24 +132,35 @@ export const EvaluationForm = () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl mb="4" isInvalid={Boolean(errors.paa)}>
               <FormLabel htmlFor="paa">Puntaje PAA</FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="paa"
-                type="number"
-                {...register('paa', {
-                  required:
-                    'Por favor ingresa el resultado de la Prueba de Aptitud Académica',
-                  min: {
-                    value: 520,
-                    message: 'El puntaje debe estar entre 520 y 1600',
-                  },
-                  max: {
-                    value: 1600,
-                    message: 'El puntaje debe estar entre 520 y 1600',
-                  },
-                })}
-              />
+                min={520}
+                max={1600}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="numeric"
+              >
+                <NumberInputField
+                  name="paa"
+                  {...register('paa', {
+                    required:
+                      'Por favor ingresa el resultado de la Prueba de Aptitud Académica',
+                    min: {
+                      value: 520,
+                      message: 'El puntaje debe estar entre 520 y 1600',
+                    },
+                    max: {
+                      value: 1600,
+                      message: 'El puntaje debe estar entre 520 y 1600',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
               <FormErrorMessage>
                 {errors.paa && errors.paa.message}
               </FormErrorMessage>
@@ -152,24 +173,36 @@ export const EvaluationForm = () => {
               <FormLabel htmlFor="lastSemesterGrade">
                 Promedio del semestre anterior
               </FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="lastSemesterGrade"
-                type="number"
-                {...register('lastSemesterGrade', {
-                  required:
-                    'Por favor ingresa el promedio del semestre anterior',
-                  min: {
-                    value: 0,
-                    message: 'El promedio debe estar entre 0 y 100',
-                  },
-                  max: {
-                    value: 100,
-                    message: 'El promedio debe estar entre 0 y 100',
-                  },
-                })}
-              />
+                min={0}
+                max={100}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="lastSemesterGrade"
+                  type="number"
+                  {...register('lastSemesterGrade', {
+                    required:
+                      'Por favor ingresa el promedio del semestre anterior',
+                    min: {
+                      value: 0.0,
+                      message: 'El promedio debe estar entre 0 y 100',
+                    },
+                    max: {
+                      value: 100.0,
+                      message: 'El promedio debe estar entre 0 y 100',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
               <FormErrorMessage>
                 {errors.lastSemesterGrade && errors.lastSemesterGrade.message}
               </FormErrorMessage>
@@ -179,23 +212,36 @@ export const EvaluationForm = () => {
               <FormLabel htmlFor="accumulatedGrade">
                 Promedio acumulado
               </FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="accumulatedGrade"
-                type="number"
-                {...register('accumulatedGrade', {
-                  required: 'Por favor ingresa el promedio acumulado',
-                  min: {
-                    value: 0,
-                    message: 'El promedio acumulado debe estar entre 0 y 100',
-                  },
-                  max: {
-                    value: 100,
-                    message: 'El promedio acumulado debe estar entre 0 y 100',
-                  },
-                })}
-              />
+                min={0}
+                max={100}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="accumulatedGrade"
+                  type="number"
+                  {...register('accumulatedGrade', {
+                    required: 'Por favor ingresa el promedio acumulado',
+                    min: {
+                      value: 0.0,
+                      message: 'El promedio acumulado debe estar entre 0 y 100',
+                    },
+                    max: {
+                      value: 100.0,
+                      message: 'El promedio acumulado debe estar entre 0 y 100',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+
               <FormErrorMessage>
                 {errors.accumulatedGrade && errors.accumulatedGrade.message}
               </FormErrorMessage>
@@ -203,27 +249,38 @@ export const EvaluationForm = () => {
                 El promedio que se tiene de toda la carrera
               </FormHelperText>
             </FormControl>
-
             <FormControl mb="4" isInvalid={Boolean(errors.enrrolledUnits)}>
               <FormLabel htmlFor="enrrolledUnits">Unidades Inscritas</FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="enrrolledUnits"
-                type="number"
-                {...register('enrrolledUnits', {
-                  required:
-                    'Por favor ingresa las unidades inscritas en este semestre',
-                  min: {
-                    value: 0,
-                    message: 'El número de unidades debe ser entre 0 y 100',
-                  },
-                  max: {
-                    value: 100,
-                    message: 'El número de unidades debe ser entre 0 y 100',
-                  },
-                })}
-              />
+                min={0}
+                max={100}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="enrrolledUnits"
+                  {...register('enrrolledUnits', {
+                    required:
+                      'Por favor ingresa las unidades inscritas en este semestre',
+                    min: {
+                      value: 0.0,
+                      message: 'El número de unidades debe ser entre 0 y 100',
+                    },
+                    max: {
+                      value: 100.0,
+                      message: 'El número de unidades debe ser entre 0 y 100',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+
               <FormErrorMessage>
                 {errors.enrrolledUnits && errors.enrrolledUnits.message}
               </FormErrorMessage>
@@ -236,26 +293,39 @@ export const EvaluationForm = () => {
 
             <FormControl mb="4" isInvalid={Boolean(errors.classUnits)}>
               <FormLabel htmlFor="classUnits">Unidades de la materia</FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="classUnits"
-                type="number"
-                {...register('classUnits', {
-                  required:
-                    'Por favor ingresa las unidades que representa la materia',
-                  min: {
-                    value: 4,
-                    message:
-                      'El número de unidades para una materia debe ser entre 4 y 12',
-                  },
-                  max: {
-                    value: 12,
-                    message:
-                      'El número de unidades para una materia debe ser entre 4 y 12',
-                  },
-                })}
-              />
+                min={1}
+                max={20}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="classUnits"
+                  type="number"
+                  {...register('classUnits', {
+                    required:
+                      'Por favor ingresa las unidades que representa la materia',
+                    min: {
+                      value: 1.0,
+                      message:
+                        'El número de unidades para una materia debe ser entre 4 y 12',
+                    },
+                    max: {
+                      value: 16.0,
+                      message:
+                        'El número de unidades para una materia debe ser entre 4 y 12',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+
               <FormErrorMessage>
                 {errors.classUnits && errors.classUnits.message}
               </FormErrorMessage>
@@ -266,23 +336,38 @@ export const EvaluationForm = () => {
 
             <FormControl mb="4" isInvalid={Boolean(errors.classHours)}>
               <FormLabel htmlFor="classHours">Horas de clase</FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="classHours"
-                type="number"
-                {...register('classHours', {
-                  required: 'Por favor ingresa las horas de clase',
-                  min: {
-                    value: 1.5,
-                    message: 'Las horas de una clase deben estar entre 1.5 y 6',
-                  },
-                  max: {
-                    value: 6,
-                    message: 'Las horas de una clase deben estar entre 1.5 y 6',
-                  },
-                })}
-              />
+                min={1}
+                max={20}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="classHours"
+                  type="number"
+                  {...register('classHours', {
+                    required: 'Por favor ingresa las horas de clase',
+                    min: {
+                      value: 1,
+                      message:
+                        'Las horas de una clase deben estar entre 1 y 20',
+                    },
+                    max: {
+                      value: 20.0,
+                      message:
+                        'Las horas de una clase deben estar entre 1 y 20',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+
               <FormErrorMessage>
                 {errors.classHours && errors.classHours.message}
               </FormErrorMessage>
@@ -290,23 +375,38 @@ export const EvaluationForm = () => {
 
             <FormControl mb="4" isInvalid={Boolean(errors.labHours)}>
               <FormLabel htmlFor="labHours">Horas de laboratorio</FormLabel>
-              <Input
+              <NumberInput
                 isRequired
                 onWheel={(e) => e.target.blur()}
-                name="labHours"
-                type="number"
-                {...register('labHours', {
-                  required: 'Por favor ingresa las horas de laboratorio',
-                  min: {
-                    value: 0,
-                    message: 'Las horas de laboratorio deben estar entre 0 y 6',
-                  },
-                  max: {
-                    value: 6,
-                    message: 'Las horas de laboratorio deben estar entre 0 y 6',
-                  },
-                })}
-              />
+                min={1}
+                max={12}
+                keepWithinRange={true}
+                clampValueOnBlur={false}
+                inputMode="decimal"
+              >
+                <NumberInputField
+                  name="labHours"
+                  type="number"
+                  {...register('labHours', {
+                    required: 'Por favor ingresa las horas de laboratorio',
+                    min: {
+                      value: 0.0,
+                      message:
+                        'Las horas de laboratorio deben estar entre 0 y 12',
+                    },
+                    max: {
+                      value: 12.0,
+                      message:
+                        'Las horas de laboratorio deben estar entre 0 y 12',
+                    },
+                  })}
+                />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+
               <FormErrorMessage>
                 {errors.labHours && errors.labHours.message}
               </FormErrorMessage>
@@ -314,7 +414,7 @@ export const EvaluationForm = () => {
 
             <FormControl mb="4" isInvalid={Boolean(errors.currentSemester)}>
               <FormLabel htmlFor="currentSemester">
-                Semestre del alumno
+                Semestre actual
               </FormLabel>
               <Select
                 isRequired
@@ -365,11 +465,17 @@ export const EvaluationForm = () => {
             </FormControl>
 
             <Stack my={12} spacing={8}>
-              <Button isLoading={isSubmitLoadint} loadingText='Creando Evaluación' type="submit">Evaluar</Button>
+              <Button
+                isLoading={isSubmitLoadint}
+                loadingText="Creando Evaluación"
+                type="submit"
+              >
+                Evaluar
+              </Button>
             </Stack>
           </form>
         </Box>
       </Stack>
-    </>
+    </Box>
   );
 };

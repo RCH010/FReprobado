@@ -15,7 +15,7 @@ import useAuth from '../hooks/useAuth';
 import routesPaths from './routes';
 import { Analytics } from '../views/Dashboard/Analytics';
 import { EvaluationForm } from '../views/Dashboard/EvaluationForm';
-import { Evaluations } from '../views/Dashboard/Evaluations';
+import { Evaluation } from '../views/Dashboard/Evaluation';
 
 export const AppRouter = () => {
   const { authContext } = useAuth();
@@ -67,7 +67,7 @@ export const AppRouter = () => {
                             <Route path={routesPaths.DASHBOARD} element={<Dashboard />}>
                               <Route index element={<Analytics />} />
                               <Route path={routesPaths.NEWEVALUTATION} element={<EvaluationForm />} />
-                              <Routes path={routesPaths.EVALUATIONS} element={<Evaluations />} />
+                              <Route path={':evaluationID'} element={<Evaluation />} />  
                             </Route>
                           </Routes>
                         </DashboardProvider>
