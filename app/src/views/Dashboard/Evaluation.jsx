@@ -108,7 +108,11 @@ export const Evaluation = () => {
                 <Tbody>
                   <Tr>
                     <Th>Fecha:</Th>
-                    <Td>{new Date(currentEvaluation.createdAt.seconds * 1000).toLocaleDateString("es-MX")}</Td>
+                    <Td>
+                    { currentEvaluation.createdAt?.seconds? 
+                      new Date(currentEvaluation.createdAt.seconds * 1000).toLocaleDateString("es-MX") : '-'
+                    }
+                    </Td>
                   </Tr>
                   <Tr>
                     <Th>Status:</Th>

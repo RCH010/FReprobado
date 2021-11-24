@@ -56,7 +56,7 @@ export const Analytics = () => {
     const data = totals;
     if (data) {
       for (const key in data['featuresAvg']) {
-        featuresLabels.push(doughnutLabels[key]);
+        featuresLabels.push(doughnutLabels[key]? doughnutLabels[key]:key);
         featuresValues.push(data['featuresAvg'][key]);
       }
       for (let i = 0; i < Object.keys(data['featuresAvg']).length; i++) {
@@ -182,7 +182,11 @@ export const Analytics = () => {
                     key={evaluation.id} 
                     onClick={() => {navigate(routesPaths.AUTHBASE+routesPaths.DASHBOARD+evaluation.id)}}
                   >
-                    <Td>{new Date(evaluation.createdAt?.seconds || 0 * 1000).toLocaleDateString("es-MX")}</Td>
+                    <Td>
+                    { evaluation.createdAt?.seconds? 
+                      new Date(evaluation.createdAt.seconds * 1000).toLocaleDateString("es-MX") : '-'
+                    }
+                      </Td>
                     <Td>{evaluation.status}</Td>
                     <Td>
                       {evaluation.result?.prediction.toFixed(2) || '-'}
