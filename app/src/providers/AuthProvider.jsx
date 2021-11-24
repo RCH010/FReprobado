@@ -1,8 +1,6 @@
 import React, { useState, createContext, useEffect } from 'react';
 import { APIService } from '../firebase/firebase';
 import { updateDbProfile } from '../firebase/firestore';
-import { defaultUser } from './defaultUser';
-
 
 const defaultContextValues = {
   authContext: {

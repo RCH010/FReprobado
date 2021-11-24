@@ -18,6 +18,7 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  theme,
 } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
@@ -69,7 +70,7 @@ export const EvaluationForm = () => {
       position: 'bottom',
     });
     nvaigate(
-      routesPaths.AUTHBASE + routesPaths.DASHBOARD + routesPaths.EVALUATIONS
+      routesPaths.AUTHBASE + routesPaths.DASHBOARD
     );
     setIsSubmitLoadint(false);
   };
@@ -103,7 +104,7 @@ export const EvaluationForm = () => {
   };
 
   return (
-    <>
+    <Box  maxW={theme.breakpoints['xl']} w="100%">
       <Breadcrumb spacing="1em" mb="1rem">
         <BreadcrumbItem>
           <BreadcrumbLink
@@ -413,7 +414,7 @@ export const EvaluationForm = () => {
 
             <FormControl mb="4" isInvalid={Boolean(errors.currentSemester)}>
               <FormLabel htmlFor="currentSemester">
-                Semestre del alumno
+                Semestre actual
               </FormLabel>
               <Select
                 isRequired
@@ -475,6 +476,6 @@ export const EvaluationForm = () => {
           </form>
         </Box>
       </Stack>
-    </>
+    </Box>
   );
 };

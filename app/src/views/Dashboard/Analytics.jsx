@@ -18,26 +18,26 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
-import { allowedColors } from '../../utils/utils';
-import { Link } from 'react-router-dom';
+import { allowedColors, evaluationsColumns } from '../../utils/utils';
+import { Link, useNavigate } from 'react-router-dom';
 import routesPaths from '../../router/routes';
 import { DashboardContext } from '../../providers/DashboardProvider';
 
 const doughnutLabels = {
   acumulatedGrade: 'Promedio C. acumuladas',
   lastSemesterGrade: 'Promedio C. último semestre',
-}
+};
 
 export const Analytics = () => {
+  const navigate = useNavigate()
   const containerDirection = useBreakpointValue({ base: 'column', md: 'row' });
   const doughnutWidth = useBreakpointValue({ base: '90%', md: '40%' });
   const barsWidth = useBreakpointValue({ base: '90%', md: '60%' });
-  const { currentUser, evaluations } = useContext(DashboardContext)
-  let totals = null
+  const { currentUser, evaluations } = useContext(DashboardContext);
+  let totals = null;
   if (currentUser) {
     totals = currentUser.totals;
   }
-  
 
   const [approved, setApproved] = useState(0);
   const [failed, setFailed] = useState(0);
@@ -47,11 +47,7 @@ export const Analytics = () => {
     featuresColors: [],
     featuresBorder: [],
   });
-  const [tableData, setTableData] = useState({
-    columns: [],
-    data: [],
-  });
-
+  
   const UpdateGraphsInfo = () => {
     const featuresLabels = [];
     const featuresValues = [];
@@ -79,23 +75,11 @@ export const Analytics = () => {
     }
   };
 
-  const fetchTableInfo = () => {
-    const url = 'https://run.mocky.io/v3/d993342f-6a37-465f-a108-c055efa653b0';
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setTableData({ columns: data.columns, data: data.data });
-      });
-  };
-
   useEffect(() => {
     UpdateGraphsInfo();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
-  useEffect(() => {
-    fetchTableInfo();
-  }, []);
 
   return (
     <Box display="flex" alignItems="center" justifyContent="center">
@@ -105,7 +89,7 @@ export const Analytics = () => {
             <BreadcrumbLink>Inicio</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
-        <Flex justifyContent="flex-end">
+        <Flex my={4} justifyContent="flex-end">
           <Button
             as={Link}
             to={
@@ -173,26 +157,42 @@ export const Analytics = () => {
           </Container>
         </Flex>
         <br />
-        <Table my={12} variant="simple">
-          <Thead>
-            <Tr>
-              {tableData.columns.map((el) => (
-                <Th key={el}>{el}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {tableData.data.map((el) => {
-              return (
-                <Tr>
-                  {el.map((e) => (
-                    <Td>{e}</Td>
-                  ))}
-                </Tr>
-              );
-            })}
-          </Tbody>
-        </Table>
+        <div style={{
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          display: 'block',
+        }}>
+          
+          <Table
+            my={12}
+            size="sm"
+            variant="simple"
+          >
+            <Thead>
+              <Tr>
+                {evaluationsColumns.map((el) => (
+                  <Th key={el}>{el}</Th>
+                ))}
+              </Tr>
+            </Thead>
+            <Tbody>
+              {evaluations && evaluations.map((evaluation) => {
+                return (
+                  <Tr 
+                    key={evaluation.id} 
+                    onClick={() => {navigate(routesPaths.AUTHBASE+routesPaths.DASHBOARD+evaluation.id)}}
+                  >
+                    <Td>{new Date(evaluation.createdAt?.seconds || 0 * 1000).toLocaleDateString("es-MX")}</Td>
+                    <Td>{evaluation.status}</Td>
+                    <Td>{evaluation.data.enrrolledUnits}</Td>
+                    <Td>{evaluation.data.classUnits}</Td>
+                    <Td>{evaluation.data.currentSemester}</Td> 
+                  </Tr>
+                )
+              })}
+            </Tbody>
+          </Table>
+        </div>
       </Flex>
     </Box>
   );
